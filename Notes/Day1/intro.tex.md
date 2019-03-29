@@ -1,6 +1,6 @@
 # Intro - Parallel Programming 101
 
-To connect to Ulysses: `ssh $ULY`
+To connect to Ulysses: `ssh ULY`
 Directory of course material: `/scratch/igirotto/DSSC/`
 To copy a folder from Ulysses to local machine: `scp -r username@frontend2.hpc.sissa.it:/scratch/igirotto/DSSC/ /local/path/`
 
