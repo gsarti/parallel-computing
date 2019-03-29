@@ -83,6 +83,7 @@ int main( int argc, char * argv[] )
 {
     double pi;
     int N = atoi(argv[1]);
+    printf("Size: %d", N);
 
     double start = omp_get_wtime();
     pi = serial_approx_pi(N);
