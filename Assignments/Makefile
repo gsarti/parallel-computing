@@ -1,4 +1,4 @@
-CC = gcc
+CC = gcc -std=c99
 
 ex1:
 	$(CC) -fopenmp ex01/ex1.c -o ex1.x
