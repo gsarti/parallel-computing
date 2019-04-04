@@ -88,25 +88,25 @@ int main()
 {
     const int N = 250;
     int a[N];
-    printf("Serial:\n");
+    printf("serial:\n");
     serial_exec(N, a);
     print_usage(a, N, 1);
-    printf("Static auto:\n");
+    printf("schedule(static):\n");
     static_exec(N, a);
     print_usage(a, N, 10);
-    printf("Static 1:\n");
+    printf("schedule(static, 1):\n");
     static_exec_chunk(N, a, 1);
     print_usage(a, N, 10);
-    printf("Static 10:\n");
+    printf("schedule(static, 10):\n");
     static_exec_chunk(N, a, 10);
     print_usage(a, N, 10);
-    printf("Dynamic auto:\n");
+    printf("schedule(dynamic):\n");
     dynamic_exec(N, a);
     print_usage(a, N, 10);
-    printf("Dynamic 1:\n");
+    printf("schedule(dynamic, 1):\n");
     dynamic_exec_chunk(N, a, 1);
     print_usage(a, N, 10);
-    printf("Dynamic 10:\n");
+    printf("schedule(dynamic, 10):\n");
     dynamic_exec_chunk(N, a, 10);
     print_usage(a, N, 10);
 }

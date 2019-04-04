@@ -2,7 +2,7 @@
 
 cd ~/parallel-computing/Assignments/
 
-make
+make ex1
 
 for thread in 1 2 4 8 16 20
 do
