@@ -21,7 +21,6 @@ int main( int argc, char * argv[] ){
     int nproc; // Total number of MPI processes
 
     int N = atoi(argv[1]);
-    printf("Size: %d", N);
 
     double t1, t2;
 
@@ -43,11 +42,11 @@ int main( int argc, char * argv[] ){
 
     if(rank != root)
     {
-        local_pi += local_sum(start_pos, end_pos, h);
+        local_pi += local_sum_midpoint(start_pos, end_pos, h);
     }
     else
     {
-        local_pi += local_sum(start_pos, N, h);
+        local_pi += local_sum_midpoint(start_pos, N, h);
     }
     MPI_Reduce(&local_pi, &global_pi, 1, MPI_DOUBLE, MPI_SUM, root, MPI_COMM_WORLD);
     t2 = MPI_Wtime();

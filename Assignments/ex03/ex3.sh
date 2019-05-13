@@ -3,6 +3,7 @@
 cd ~/parallel-computing/Assignments/
 
 module load impi-trial/5.0.1.035
+module load openmpi/1.8.3/intel/14.0
 
 make ex3
 
