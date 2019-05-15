@@ -20,7 +20,7 @@ ex4:
 	$(MPICC) $(OPT) ex04/ex4_overlapping.c -o ex4_overlapping.x
 
 ex5:
-    $(MPICC) $(OPT) ex05/ex5.c -o ex5.x
+	$(MPICC) $(OPT) ex05/ex5.c -o ex5.x
 	$(MPICC) $(OPT) ex05/ex5_overlapping.c -o ex5_overlapping.x
 
 ex6:
