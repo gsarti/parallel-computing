@@ -15,7 +15,7 @@ void print_matrix(double * mat, int size)
     {
         for(int j = 0; j < size; j++)
         {
-            printf("%.1f", mat[i * size + j]);
+            printf("%.0f  ", mat[i * size + j]);
         }
         printf("\n");
     }
