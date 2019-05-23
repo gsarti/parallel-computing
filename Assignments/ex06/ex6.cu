@@ -94,8 +94,8 @@ int main (int argc, char ** argv)
         cudaMemcpy(h_out, d_out, mem_size, cudaMemcpyDeviceToHost);
 
         printf("\nCORRECT: %s\n", check(h_in, h_out, SIZE) ? "TRUE" : "FALSE");
-        printf("memsize: %d, exec_time: %f", memsize, exec_time);
-        printf("\nBandwidth: %d GB/s\n", 2. * mem_size / exec_time / 1000000);
+        printf("memsize: %d, exec_time: %d", mem_size, exec_time);
+        printf("\nBandwidth: %d GB/s\n", 2. * mem_size / (exec_time * 1000000));
     }
 
     free(h_in);
