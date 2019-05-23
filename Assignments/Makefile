@@ -24,8 +24,7 @@ ex5:
 	$(MPICC) $(OPT) ex05/ex5_overlapping.c -o ex5_overlapping.x
 
 ex6:
-	$(NVCC) $(OPT) ex06/ex6_naive.c -o ex6_naive.x
-	$(NVCC) $(OPT) ex06/ex6_opt.c -o ex6_opt.x
+	$(NVCC) $(OPT) ex06/ex6.c -o ex6.x
 
 clean:
 	find . -type f -executable -exec rm '{}' \;
