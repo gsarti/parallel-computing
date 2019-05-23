@@ -1,7 +1,7 @@
 #include <stdio.h>
 
-#define SIZE_X 2048
-#define SIZE_Y 2048
+#define SIZE_X 2048 * 4
+#define SIZE_Y 2048 * 4
 #define TILE 32
 #define BLOCK 8
 #define SIZE SIZE_X * SIZE_Y
@@ -47,7 +47,7 @@ int main (int argc, char ** argv)
     dim3 threads(TILE, BLOCK); 
 
     cudaEvent_t start, stop;
-    float exec_time;
+    float exec_time = 0;
 
     const int mem_size = sizeof(double) * SIZE;
 
@@ -94,8 +94,8 @@ int main (int argc, char ** argv)
         cudaMemcpy(h_out, d_out, mem_size, cudaMemcpyDeviceToHost);
 
         printf("\nCORRECT: %s\n", check(h_in, h_out, SIZE) ? "TRUE" : "FALSE");
-
-        printf("\nBandwidth: %d GB/s\n", 2. * 1000 * mem_size / exec_time / 1000000);
+        printf("memsize: %d, exec_time: %f", memsize, exec_time);
+        printf("\nBandwidth: %d GB/s\n", 2. * mem_size / exec_time / 1000000);
     }
 
     free(h_in);
