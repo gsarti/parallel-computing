@@ -1,5 +1,5 @@
 CC = gcc -std=c99
-NVCC =  nvcc -std=c99
+NVCC = nvcc
 MPICC = mpicc -std=c99
 OPT = -O3
 OMP = -fopenmp
@@ -24,7 +24,7 @@ ex5:
 	$(MPICC) $(OPT) ex05/ex5_overlapping.c -o ex5_overlapping.x
 
 ex6:
-	$(NVCC) $(OPT) ex06/ex6.c -o ex6.x
+	$(NVCC) $(OPT) ex06/ex6.cu -o ex6.x
 
 clean:
 	find . -type f -executable -exec rm '{}' \;

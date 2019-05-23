@@ -35,14 +35,14 @@ int check(double * a, double * b, int size)
         {
             return 0;
         }
-        return 1;
     }
+    return 1;
 }
 
 int main (int argc, char ** argv)
 {
-    void (*kernel)(double *, double *, int, int, int);
-    char *kernelName;
+    void (*kernel)(double *, double *, int);
+    const char * kernelNames[2] = {"Naive transpose\n", "Optimized transpose\n"};
     dim3 grid(SIZE_X / TILE, SIZE_Y / TILE);
     dim3 threads(TILE, BLOCK); 
 
@@ -54,7 +54,7 @@ int main (int argc, char ** argv)
     double * h_in = (double *)malloc(mem_size);
     double * h_out = (double *)malloc(mem_size);
 
-    double * d_in, d_out;
+    double * d_in, * d_out;
     cudaMalloc((void **)&d_in, mem_size);
     cudaMalloc((void **)&d_out, mem_size);
 
@@ -73,13 +73,13 @@ int main (int argc, char ** argv)
         switch (k) {
             case 0:
                 kernel = &transposeNaive;
-                kernelName = "Naive transpose\n";
                 break;
             case 1:
                 kernel = &transposeOptimized;
-                kernelName = "Optimized transpose\n";
                 break;
         }
+
+        printf("%s", kernelNames[k]);
 
         cudaEventCreate(&start);
         cudaEventCreate(&stop);
@@ -95,7 +95,7 @@ int main (int argc, char ** argv)
 
         printf("\nCORRECT: %s\n", check(h_in, h_out, SIZE) ? "TRUE" : "FALSE");
 
-        printf("\nBandwidth: %d GB/s\n", 2. * 1000 * mem_size / exec_time / 1000000
+        printf("\nBandwidth: %d GB/s\n", 2. * 1000 * mem_size / exec_time / 1000000);
     }
 
     free(h_in);
