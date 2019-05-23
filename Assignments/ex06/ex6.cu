@@ -85,7 +85,7 @@ int main (int argc, char ** argv)
         cudaEventCreate(&stop);
 
         cudaEventRecord(start);
-        kernel<<<grid, threads>>>(d_out, d_in, SIZE_X, SIZE_Y, 1);
+        kernel<<<grid, threads>>>(d_in, d_out, SIZE);
         cudaEventRecord(stop);
 
         cudaEventSynchronize(stop);
