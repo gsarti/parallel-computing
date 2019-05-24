@@ -66,7 +66,6 @@ int main (int argc, char ** argv)
     cudaMemcpy(d_in, h_in, mem_size, cudaMemcpyHostToDevice);
 
     printf("\nMatrix size: %dx%d, tile: %dx%d, block: %dx%d\n\n", SIZE_X, SIZE_Y, TILE, TILE, TILE, BLOCK);
-    printf("Kernel: ");
     
     for (int k = 0; k < 2; ++k)
     {
@@ -79,7 +78,7 @@ int main (int argc, char ** argv)
                 break;
         }
 
-        printf("%s", kernelNames[k]);
+        printf("\nKernel: %s", kernelNames[k]);
 
         cudaEventCreate(&start);
         cudaEventCreate(&stop);
@@ -94,8 +93,8 @@ int main (int argc, char ** argv)
         cudaMemcpy(h_out, d_out, mem_size, cudaMemcpyDeviceToHost);
 
         printf("\nCORRECT: %s\n", check(h_in, h_out, SIZE) ? "TRUE" : "FALSE");
-        printf("memsize: %d, exec_time: %d", mem_size, exec_time);
-        printf("\nBandwidth: %d GB/s\n", 2. * mem_size / (exec_time * 1000000));
+        printf("memsize: %d, exec_time: %f", mem_size, exec_time);
+        printf("\nBandwidth: %f GB/s\n", 2. * mem_size / (exec_time * 1000000));
     }
 
     free(h_in);
