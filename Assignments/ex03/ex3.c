@@ -2,6 +2,13 @@
 #include <stdio.h>
 #include <mpi.h>
 
+/**
+ * @brief Locally performs the Montecarlo approximation of Pi
+ * @param low_bound The lower bound of the problem size interval (for multiple threads)
+ * @param up_bound The upper bound of the problem size interval (for multiple threads)
+ * @param h 1 / problem size
+ * @return double The local Pi approximation
+ */
 double local_sum_midpoint(int low_bound, int up_bound, double h)
 {
     double pi = 0.0;

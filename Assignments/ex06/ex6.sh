@@ -6,4 +6,4 @@ module load cudatoolkit
 
 make ex6
 
-./ex6.x >> results.txt
+./ex6.x
