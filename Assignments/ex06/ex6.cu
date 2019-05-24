@@ -1,106 +1,109 @@
 #include <stdio.h>
 
-#define SIZE_X 2048 * 4
-#define SIZE_Y 2048 * 4
 #define TILE 32
-#define BLOCK 8
-#define SIZE SIZE_X * SIZE_Y
+#define BLOCK_X 8
+#define BLOCK_Y 16
+#define N 8192
 
-__global__ void transposeNaive(double * in, double * out, int size)
+__global__ void transposeOptimized(double *a, double *b, int size) 
 {
+    __shared__ double tile[BLOCK_X][BLOCK_Y];
     int col = blockIdx.x * blockDim.x + threadIdx.x;
     int row = blockIdx.y * blockDim.y + threadIdx.y;
-    out[col * size + row] = in[row * size + col];
-}
-
-__global__ void transposeOptimized(double * in, double * out, int size)
-{
-    __shared__ double temp[BLOCK][BLOCK];
-
-    int col = blockIdx.x * blockDim.x + threadIdx.x;
-    int row = blockIdx.y * blockDim.y + threadIdx.y;
-
-    temp[threadIdx.x][threadIdx.y] = in[row * size + col];
-
+    tile[threadIdx.x][threadIdx.y] = a[row * size + col];
     __syncthreads();
-
-    out[col * size + row] = temp[threadIdx.x][threadIdx.y];
+    b[col * size + row] = tile[threadIdx.x][threadIdx.y];
 }
 
-int check(double * a, double * b, int size)
+__global__ void transposeNaive(double *a, double *b, int size) 
 {
-    for(int i = 0; i < size * size; ++i)
-    {
-        if(a[i] != b[(i % size) * size + i / size])
-        {
-            return 0;
-        }
-    }
+    int row = blockIdx.x * blockDim.x + threadIdx.x;
+    int col = blockIdx.y * blockDim.y + threadIdx.y;
+    b[col * size + row] = a[row * size + col];
+}
+
+void transposeCpu(double *a, double *b, int size) 
+{
+    for (int i = 0; i < size; ++i)
+      for (int j = 0; j < size; ++j)
+        b[j * size + i] = a[i * size + j];
+}
+
+int isCorrect(double * a, double * b, int size)
+{
+    for(int i = 0; i < size; ++i)
+        for(int j = 0; j < size; ++j)
+            if(b[i * size + j] != a[i * size + j])
+                return 0;
     return 1;
 }
 
-int main (int argc, char ** argv)
-{
-    void (*kernel)(double *, double *, int);
-    const char * kernelNames[2] = {"Naive transpose\n", "Optimized transpose\n"};
-    dim3 grid(SIZE_X / TILE, SIZE_Y / TILE);
-    dim3 threads(TILE, BLOCK); 
+int main(int argc, char *argv[]) {
 
+    double * h_in, * h_out_naive, * h_out_opt;
+    double * dev_in, * dev_out_naive, * dev_out_opt;
+    double * cpu;
+    int size = N * N;
+    int memsize = size * sizeof(double); 
+    
+    dim3 block(TILE, TILE);
+    dim3 grid(N / block.x, N / block.y);
+    dim3 blockOpt(BLOCK_X, BLOCK_Y);
+    dim3 gridOpt(N / blockOpt.x, N / blockOpt.y);
+    
+    h_in = (double *)malloc(memsize);
+    h_out_naive = (double *)malloc(memsize);
+    h_out_opt = (double *)malloc(memsize);
+    cpu = (double *)malloc(memsize);
+    cudaMalloc((void **)&dev_in, memsize);
+    cudaMalloc((void **)&dev_out_naive, memsize);
+    cudaMalloc((void **)&dev_out_opt, memsize);
+    
+    for(int i = 0; i < size; ++i)
+        h_in[i] = i;
+    
+    cudaMemcpy(dev_in, h_in, memsize, cudaMemcpyHostToDevice);
+    
     cudaEvent_t start, stop;
     float exec_time = 0;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
 
-    const int mem_size = sizeof(double) * SIZE;
+    printf("Transposing matrix on CPU for validation...\n");
+    transposeCpu(h_in, cpu, N);
+    printf("\nMatrix size: %dx%d, tile: %dx%d\n", N, N, TILE, TILE);
+    printf("\nKernel: Naive transpose\n\n");
 
-    double * h_in = (double *)malloc(mem_size);
-    double * h_out = (double *)malloc(mem_size);
+    cudaEventRecord(start);
+    transposeNaive<<<grid, block>>>(dev_in, dev_out_naive, N);
+    cudaEventRecord(stop);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&exec_time, start, stop);
+    cudaMemcpy(h_out_naive, dev_out_naive, memsize, cudaMemcpyDeviceToHost);
+    printf("Naive transpose: %s\n", isCorrect(h_out_naive, cpu, N) ? "CORRECT" : "FAIL");
+    printf("GPU Time: %f\n", exec_time);
+    printf("Bandwidth (GB/s): %f\n", memsize * 2 / exec_time / 1000000);
 
-    double * d_in, * d_out;
-    cudaMalloc((void **)&d_in, mem_size);
-    cudaMalloc((void **)&d_out, mem_size);
+    free(h_out_naive);
+    cudaFree(dev_out_naive);
 
-    for(int i = 0; i < SIZE; ++i)
-    {
-        h_in[i] = (double)i;
-    }
+    printf("\nKernel: Optimized transpose\n\n");
 
-    cudaMemcpy(d_in, h_in, mem_size, cudaMemcpyHostToDevice);
-
-    printf("\nMatrix size: %dx%d, tile: %dx%d, block: %dx%d\n\n", SIZE_X, SIZE_Y, TILE, TILE, TILE, BLOCK);
-    
-    for (int k = 0; k < 2; ++k)
-    {
-        switch (k) {
-            case 0:
-                kernel = &transposeNaive;
-                break;
-            case 1:
-                kernel = &transposeOptimized;
-                break;
-        }
-
-        printf("\nKernel: %s", kernelNames[k]);
-
-        cudaEventCreate(&start);
-        cudaEventCreate(&stop);
-
-        cudaEventRecord(start);
-        kernel<<<grid, threads>>>(d_in, d_out, SIZE);
-        cudaEventRecord(stop);
-
-        cudaEventSynchronize(stop);
-        cudaEventElapsedTime(&exec_time, start, stop);
-
-        cudaMemcpy(h_out, d_out, mem_size, cudaMemcpyDeviceToHost);
-
-        printf("\nCORRECT: %s\n", check(h_in, h_out, SIZE) ? "TRUE" : "FALSE");
-        printf("memsize: %d, exec_time: %f", mem_size, exec_time);
-        printf("\nBandwidth: %f GB/s\n", 2. * mem_size / (exec_time * 1000000));
-    }
+    cudaEventRecord(start);
+    transposeOptimized<<<gridOpt, blockOpt>>>(dev_in, dev_out_opt, N);
+    cudaEventRecord(stop);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&exec_time, start, stop);
+    cudaMemcpy(h_out_opt, dev_out_opt, memsize, cudaMemcpyDeviceToHost);
+    printf("Optimized transpose: %s\n", isCorrect(h_out_opt, cpu, N) ? "CORRECT" : "FAIL");
+    printf("GPU Time: %f\n", exec_time);
+    printf("Bandwidth (GB/s): %f\n", memsize * 2 / exec_time / 1000000);
 
     free(h_in);
-    free(h_out);
-    cudaFree(d_in);
-    cudaFree(d_out);
+    free(h_out_opt);
+    free(cpu);
+    cudaFree(dev_in);
+    cudaFree(dev_out_opt);
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
     return 0;
