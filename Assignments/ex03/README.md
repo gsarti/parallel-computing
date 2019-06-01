@@ -1,10 +1,10 @@
 # Assignment 3: Approximate Pi with MPI vs OpenMP
 
-In the third exercise for the course of Parallel Programming, our aim is to compare the times of computing a Pi approximation with OpenMP versus MPI.à
+In the third exercise for the course of Parallel Programming, our aim is to compare the times of computing a Pi approximation with OpenMP versus MPI.
 
 ## Procedure and Results
 
-**Table 1** presents the times of execution for OpenMP Pi approximation obtained from Assignment 1 using a size of $n = 1000000000$ on mpicc compiler with an optimization level of -O3 on two processors with 20 cores each.
+**Table 1** presents the times of execution for OpenMP Pi approximation obtained from Assignment 1 using a size of $n = 1000000000$ on mpicc compiler with an optimization level of -O3 on a single 20-core processor.
 
 | # Threads | OMP Reduction time (s) |
 |-----------|------------------------|
@@ -15,12 +15,8 @@ In the third exercise for the course of Parallel Programming, our aim is to comp
 | 12        | 0.19                   |
 | 16        | 0.14                   |
 | 20        | 0.11                   |
-| 24        | 0.14                   |
-| 28        | 0.14                   |
-| 32        | 0.13                   |
-| 36        | 0.12                   |
-| 40        | 0.12                   |
-> Table 1: Results of Assignment 1 with a tweak to raise the number of threads up to 40.
+
+> Table 1: Results obtained by re-running the code of Assignment 1, adding the 12-thread step as required by the assignment.
 
 **Table 2** presents the times of execution for MPI Pi approximation using a size of $n = 1000000000$ on mpicc compiler with an optimization level of -O3 on two processors with 20 cores each.
 
@@ -39,11 +35,9 @@ In the third exercise for the course of Parallel Programming, our aim is to comp
 | 40          | 0.06                   |
 > Table 1: Results of Assignment 3.
 
-From the results we can observe that OpenMP and MPI seem to have roughly the same speed up to 20 processes/threads. After that, OMP performances stall around 0.13 seconds while MPI performances keep going down until 0.06 seconds at 40 processes. This comes as a surprise, since I expected OpenMP to outperform MPI given the internode communication time.
+From the results we can observe that OpenMP and MPI seem to have roughly the same speed up to 20 processes/threads. After that MPI performances keep going down, reaching 0.06 seconds at 40 processes.
 
-This result is probably due to the fact that OpenMP is not exploit fully the 40 processors and is probably running on a single 20-node machine, which doesn't allow the performances to improve since each core cannot handle multiple threads efficiently.
-
-The best results would be obtained by exploiting a hybrid approach using both OpenMP and MPI.
+An even better result may be obtained by exploiting a hybrid approach using both OpenMP for intra-node multithreading and MPI for inter-node communication, since could possibly reduce the execution time by avoiding unnecessary MPI-communications inside nodes. However, there are multiple factors including topology of the system and type of approach used to carry out multilevel parallelism (e.g. Hybrid master-only, Overlapping communication and computations) that influence the effectiveness of the latter. Often, a pure MPI approach may still be faster. Source: [this interesting Stanford tutorial](http://mc.stanford.edu/cgi-bin/images/7/78/Hybrid_MPI_openMP.pdf)
 
 ## Reproducibility
 

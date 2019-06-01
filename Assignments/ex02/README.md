@@ -83,6 +83,8 @@ schedule(dynamic, 10):
 9: **********                                                  **********                              **********                                                                                **********
 ```
 
+When the chunk size is not specified for serial scheduling the problem is split evenly among all threads, while for dynamic execution it varies freely.
+
 ## Reproducibility
 
 In order to test the code, take the following steps:

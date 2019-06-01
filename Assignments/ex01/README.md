@@ -1,6 +1,6 @@
 # Assignment 1: Approximate Pi with OMP keywords
 
-In the first exercise for the course of Parallel Programming, our aim is to approximate the value of $\pi$ using the Montecarlo integral approximation.
+In the first exercise for the course of Parallel Programming, our aim is to approximate the value of Pi using the Montecarlo integral approximation.
 
 ## Procedure and Results
 
@@ -25,7 +25,7 @@ From the plot and the data it is evident that parallelizing the code leads to si
 
 Parallelization using critical keyword doesn't show any improvement since the function that should be made parallel is executed in a serial fashion to comply to the keyword, and instead adds an additional ovehead due to thread management tasks.
 
-It is interesting to note that the performances of using atomic and reduction keywords are virtually the same, i.e. non-significant differences for this problem size.
+It is interesting to note that the performances of using atomic and reduction keywords are virtually the same, i.e. non-significant differences for this problem size. Intuitively, on the long run the atomic keyword should perform better for this type of operation since it exploits the hardware capabilities on top of performing reduction.
 
 ## Reproducibility
 
